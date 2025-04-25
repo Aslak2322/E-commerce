@@ -6,6 +6,9 @@ const crypto = require('crypto');
 const secretKey = crypto.randomBytes(64).toString('hex');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+const session = require('express-session');
+const passport = require('passport');
+require('./passport');
 
 const app = express();
 const PORT = 5001;
@@ -13,7 +16,31 @@ const JWT_SECRET = process.env.JWT_SECRET || secretKey;
 
 
 app.use(express.json());
+app.use(session({
+    secret: JWT_SECRET, // use a strong, random string in production
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: false, // true if using HTTPS
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 1 // 1 hour
+    }
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(cors());
+
+app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+// Google redirects back here
+app.get('/auth/google/callback', 
+  passport.authenticate('google', { failureRedirect: '/login' }),
+  (req, res) => {
+    // You can issue your own JWT token here if you want:
+    // const token = jwt.sign({ id: req.user.googleId }, JWT_SECRET);
+    res.redirect('/'); // or send token
+});
 
 function authenticateToken(req, res, next) {
     const token = req.header('Authorization')?.split(' ')[1];
@@ -35,13 +62,24 @@ app.listen(PORT, () => {
 });
 
 app.post('/register', async (req, res) => {
-    const { email, password, first_name, last_name, address, registration_date, phone_number, date_of_birth, profile_information } = req.body;
+    console.log('🔥 /register route hit');
+    const { email, 
+            password, 
+            first_name, 
+            last_name, 
+            address, 
+            registration_date, 
+            phone_number, 
+            date_of_birth, 
+            profile_information } = req.body;
     try {
+        console.log('Incoming registration data:', req.body);
+
         if ( !email || !password) {
-            return res.status(400).json({ error: 'Id, email and password are required'})
+            return res.status(400).json({ error: 'Email and password are required'})
         }
 
-        const userExists = await query('SELECT * FROM users WHERE email = $1', [email]);
+        const userExists = await query('SELECT email FROM users WHERE email = $1', [email]);
         if (userExists.rows.length > 0) {
             return res.status(400).json({ error: 'Email already registered'});
         }
@@ -49,11 +87,18 @@ app.post('/register', async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
+        const regDate = registration_date || new Date();
+
+        const sanitizedDateOfBirth = date_of_birth === '' ? null : date_of_birth;
+        const sanitizedRegDate = registration_date === '' ? new Date() : registration_date;
+
         const result = await query(
             'INSERT INTO users ( email, password, first_name, last_name, address, registration_date, phone_number, date_of_birth, profile_information) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
-            [email, hashedPassword, first_name, last_name, address, registration_date, phone_number, date_of_birth, profile_information]
+            [email, hashedPassword, first_name, last_name, address, sanitizedRegDate, phone_number, sanitizedDateOfBirth, profile_information]
         );
-        res.status(201).json(result.rows[0]);
+        const { password: _, ...userWithoutPassword } = result.rows[0];
+
+        res.status(201).json(userWithoutPassword);
     } catch (err) {
         console.error(err)
         res.status(500).json({ error: 'Failed to create user' });
@@ -64,13 +109,15 @@ app.post('/checkout', async (req, res) => {
     const { cartItems, total, userId } = req.body;
 
     try {
-        const orderResult = await query('INSERT INTO orders (user_id, total_amount, status) VALUES ($1, $2, $3) RETURNING id', [userId, total, 'Pending']);
+        const orderResult = await query('INSERT INTO orders (user_id, total_amount, status) VALUES ($1, $2, $3) RETURNING id', [userId, total, 'completed']);
 
         const orderId = orderResult.rows[0].id;
 
         for (const item of cartItems) {
             await query('INSERT INTO order_items (order_id, product_id, quantity, price) VALUES ($1, $2, $3, $4)', [orderId, item.product_id, item.quantity, item.price]);
         }
+
+        req.session.cart = [];
 
         res.status(200).json({ message: 'Checkout successful!' });
 
@@ -127,10 +174,15 @@ app.post('/login', async (req, res) => {
             return res.status(400).json({ error: 'Invalid email or password'});
         }
 
+        req.session.user = {
+            id: user.id,
+            email: user.email,
+            first_name: user.first_name
+        };
+
         const token = jwt.sign({ id: user.id, email: user.email}, JWT_SECRET, { expiresIn: '1h' })
 
         res.status(200).json({ token, user: {id: user.id, first_name: user.first_name, email: user.email} });
-
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Failed to login'});
@@ -172,6 +224,18 @@ app.get('/products', async (req, res) => {
         res.status(500).json({ error: 'Failed to get products'});
     }
 });
+
+app.get('/products/:id', async (req, res) => {
+
+    try {
+      const productId = req.params.id;
+      let result = await query('SELECT p.*, pi.id AS image_id, pi.image_url FROM products p LEFT JOIN product_images pi ON p.id = pi.product_id WHERE p.id = $1', [productId]);
+      res.status(200).send(result.rows)
+    } catch (err) {
+      console.error(err)
+      res.status(500).json({ error: 'Failed to retrieve the product'});
+    }
+})
 
 app.delete('/products', async (req, res) => {
     try {
@@ -305,9 +369,11 @@ app.post('/orders', async (req, res) => {
     }
 });
 
-app.get('/orders', async (req, res) => {
+app.get('/orders', authenticateToken, async (req, res) => {
+    const userId = req.user.id;
+
     try {
-        const result = await query('SELECT * FROM orders');
+        const result = await query('SELECT * FROM orders WHERE user_id=$1', [userId]);
         res.status(200).json(result.rows)
     } catch (err) {
         console.error(err);
@@ -324,4 +390,6 @@ app.delete('/orders', async (req, res) => {
         res.status(500).json({ error: 'Failed to delete orders'});
     }
 })
+
+
 
