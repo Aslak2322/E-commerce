@@ -1,0 +1,81 @@
+
+
+h1 {
+    display: flex;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+}
+
+.category {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    height: 40rem;
+}
+
+.men, .women {
+  flex: 0 1 50%;  /* Each takes up 50% of the space */
+  justify-content: center; /* Center the image horizontally */
+  align-items: center;     /* Center the image vertically */
+  background-size: cover;  /* Make sure the image covers the whole div */
+  background-position: center; /* Center the background image */
+  background-repeat: no-repeat; /* Prevent the image from repeating */
+  margin: 0;
+  padding: 0;
+  display:flex;
+}
+
+.men h1, .women h1 {
+    color: #bdbdbd;
+    text-decoration: none;
+}
+
+.men {
+    background-image: url('../../assets/pexels-shotbymeti-9864149.jpg');
+}
+
+.women {
+    background-image: url('../../assets/pexels-harsh-kushwaha-804217-1689731.jpg');
+}
+
+.kids {
+    background-image: url('../../assets//jayden-seah-jFRj6c8GJ14-unsplash.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin: 0;
+    padding: 0;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40rem;
+}
+
+.kids h1 {
+    color:#BDBDBD;
+}
+
+.kids h1:hover {
+    cursor: pointer;
+    color: white;
+}
+
+.men h1:hover, .women h1:hover {
+    color: white;
+    cursor: pointer;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+footer {
+    text-align: center;
+    background-color: black;
+    color: white;
+}

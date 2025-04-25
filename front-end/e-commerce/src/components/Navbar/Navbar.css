@@ -1,0 +1,28 @@
+ul {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    list-style-type: none;
+}
+li {
+    color: #171717;
+}
+
+.navbar-link {
+    color: #171717;
+    text-decoration: none;
+    font-size: 20px;
+}
+
+.navbar-link:hover {
+    color:bisque;
+}
+.active-link {
+    font-size: 30px;
+    color:#171717;
+    border-bottom: 4px solid #000000;
+    text-decoration: none;
+}
+.navbar {
+    background-color: rgb(186, 243, 255);
+}

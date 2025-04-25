@@ -1,0 +1,25 @@
+.cart-css {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centers horizontally */
+    justify-content: center; /* Centers vertically (if parent has height) */
+    text-align: center;
+    width: 100%;
+    background-color: #30e4ee;
+}
+
+.cart-css li {
+    margin: 1rem;
+    border: 2px solid rgb(0, 0, 0);
+    padding: 2rem;
+    background-color: rgb(44, 243, 253);
+}
+.cart-css button {
+    background-color: #000000;
+    border-radius: 2rem;
+    color: rgb(255, 255, 255);
+    margin-bottom: 3rem;
+    height: 5rem;
+    width: 20rem;
+    font-size: 2rem;
+}

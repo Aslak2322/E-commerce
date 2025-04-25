@@ -1,0 +1,17 @@
+
+.orderHistory li {
+    margin: 20px;
+    border: 1px solid black;
+    background-color: rgb(195, 246, 255);
+}
+
+.orderHistory {
+    background-color: rgb(44, 243, 253);
+}
+
+.orderHistory ul {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+
