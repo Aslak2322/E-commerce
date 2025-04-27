@@ -2,7 +2,7 @@ import './Login.css';
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 
-function Login({ setName }) {
+function Login({ setName, name }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");

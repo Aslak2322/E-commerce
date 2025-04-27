@@ -26,6 +26,7 @@ app.use(session({
         maxAge: 1000 * 60 * 60 * 1 // 1 hour
     }
 }));
+
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -36,10 +37,42 @@ app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'em
 // Google redirects back here
 app.get('/auth/google/callback', 
   passport.authenticate('google', { failureRedirect: '/login' }),
-  (req, res) => {
+  async (req, res) => {
+    const { googleId, name, email } =req.user;
+
+    let user = await query("SELECT * FROM users WHERE google_id = $1", [googleId]);
+
+    if (user.rows.length === 0) {
+
+        const existingUser = await query("SELECT * FROM users WHERE email = $1", [email]);
+
+        if (existingUser.rows.length > 0) {
+            // Update that user to include the google_id
+            user = await query(
+              "UPDATE users SET google_id = $1 WHERE email = $2 RETURNING *",
+              [googleId, email]
+            );
+        } else {
+            const [first_name, last_name] = name.split(' ');
+            // Create user if not exists
+            const newUser = await query(
+                "INSERT INTO users (first_name, email, google_id) VALUES ($1, $2, $3) RETURNING *",
+                [first_name, email, googleId]
+              );
+              user = newUser;
+        }
+    }
+
+    const userId = user.rows[0].id;
     // You can issue your own JWT token here if you want:
-    // const token = jwt.sign({ id: req.user.googleId }, JWT_SECRET);
-    res.redirect('/'); // or send token
+    console.log('req.user:', req.user);
+    const token = jwt.sign(
+        { id: userId, name, email },
+        process.env.JWT_SECRET
+      );
+    console.log(token);
+
+    res.redirect(`http://localhost:3000?token=${token}`); // or send token
 });
 
 function authenticateToken(req, res, next) {
@@ -56,6 +89,7 @@ function authenticateToken(req, res, next) {
         next();
     })
 };
+  
 
 app.listen(PORT, () => {
     console.log(`app is running on port ${PORT}`)
