@@ -32,6 +32,12 @@ app.use(passport.session());
 
 app.use(cors());
 
+app.use(express.static(path.join(__dirname, "client/build")));
+
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "client/build", "index.html"));
+  });
+
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 // Google redirects back here
