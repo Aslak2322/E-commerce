@@ -33,10 +33,10 @@ app.use(passport.session());
 
 app.use(cors());
 
-app.use(express.static(path.join(__dirname, "client/build")));
+app.use(express.static(path.join(__dirname, 'frontend', 'e-commerce', 'build')));
 
-app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "client/build", "index.html"));
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'frontend', 'e-commerce', 'build', 'index.html'));
   });
 
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
