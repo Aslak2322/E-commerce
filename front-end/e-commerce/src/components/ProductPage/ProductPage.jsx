@@ -3,12 +3,14 @@ import { useParams } from 'react-router-dom';
 import Product from '../Product/Product.jsx';
 import { useState, useEffect } from "react";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 function ProductPage({ cartItems, setCartItems }) {
     const { category } = useParams();
     const [products, setProducts] = useState([]);
 
     useEffect(() => {
-      let apiUrl = "http://localhost:5001/products"
+      let apiUrl = `${API_URL}/products`
 
       if (category) {
         apiUrl += `?category=${category}`;

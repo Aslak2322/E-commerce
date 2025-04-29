@@ -2,6 +2,8 @@ import './Cart.css';
 import { useEffect, useState } from "react";
 import { jwtDecode } from 'jwt-decode';
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 function Cart ({ cartItems, setCartItems }) {
     const [loading, setLoading] = useState(true);
     const [total, setTotal] = useState(0);
@@ -10,7 +12,7 @@ function Cart ({ cartItems, setCartItems }) {
     useEffect(()=> {
         const fetchCart = async () => {
             try {
-                const response = await fetch("http://localhost:5001/cart");
+                const response = await fetch(`${API_URL}/cart`);
                 const data = await response.json();
                 console.log("Fetched cart data:", data);
                 setCartItems(data);
@@ -58,7 +60,7 @@ function Cart ({ cartItems, setCartItems }) {
         console.log("Proceeding to checkout with total:", total);
 
         try {
-            await fetch("http://localhost:5001/cart", { method: 'DELETE' });
+            await fetch(`${API_URL}/cart`, { method: 'DELETE' });
             setCartItems([]); // Clear cart locally
         } catch (error) {
             console.error("Error clearing cart:", error);
@@ -76,7 +78,7 @@ function Cart ({ cartItems, setCartItems }) {
         const token = localStorage.getItem('token');
 
         try {
-            const response = await fetch("http://localhost:5001/checkout", {
+            const response = await fetch(`${API_URL}/checkout`, {
                 method: "POST",
                 headers: {"Content-type": "application/json",
                           "Authorization": `Bearer ${token}`

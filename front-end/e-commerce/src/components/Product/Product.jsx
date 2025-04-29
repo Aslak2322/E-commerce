@@ -2,11 +2,13 @@ import {useEffect, useState } from "react";
 import "./Product.css";
 import { NavLink } from 'react-router-dom';
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 function Product( { product, setCartItems }) {
 
     const addToCart = async () => {
         try {
-            const response = await fetch("http://localhost:5001/cart", {
+            const response = await fetch(`${API_URL}/cart`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -37,7 +39,7 @@ function Product( { product, setCartItems }) {
     const [products, setProducts] = useState([]);
 
     useEffect(() => {
-        fetch("http://localhost:5001/products")
+        fetch(`${API_URL}/products`)
           .then(res => res.json())
           .then(data => setProducts(data))
           .catch(err => console.error("Failed to load products", err));

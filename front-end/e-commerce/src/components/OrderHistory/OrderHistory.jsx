@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import "./OrderHistory.css";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
+
 function OrderHistory() {
     const [orders, setOrders] = useState([]);
     const [error, setError] = useState("");
@@ -13,7 +16,7 @@ function OrderHistory() {
 
           try {
             console.log(token)
-            const response = await fetch('http://localhost:5001/orders', {
+            const response = await fetch(`${API_URL}/orders`, {
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`, // ✅ This is where ${token} goes

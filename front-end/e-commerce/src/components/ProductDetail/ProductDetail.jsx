@@ -2,6 +2,8 @@ import './ProductDetail.css';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 function ProductDetail({ setCartItems }) {
     const [product, setProduct] = useState(null);
     const [error, setError] = useState("")
@@ -10,7 +12,7 @@ function ProductDetail({ setCartItems }) {
 
     useEffect(() => {
         const fetchProduct = async () => {
-            const url = (`http://localhost:5001/products/${id}`);
+            const url = (`${API_URL}/products/${id}`);
             try {
                 const response = await fetch(url);
 
@@ -36,7 +38,7 @@ function ProductDetail({ setCartItems }) {
 
     const addToCart = async () => {
         try {
-            const response = await fetch("http://localhost:5001/cart", {
+            const response = await fetch(`${API_URL}/cart`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

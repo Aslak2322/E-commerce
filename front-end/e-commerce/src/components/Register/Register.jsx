@@ -1,6 +1,8 @@
 import "./Register.css";
 import { useState } from 'react';
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 function Register() {
     const [formData, setFormData] = useState({
         email:'',
@@ -28,7 +30,7 @@ function Register() {
         setSuccess('');
 
         try {
-            const response = await fetch( 'http://localhost:5001/register', {
+            const response = await fetch( `${API_URL}/register`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(formData)

@@ -2,6 +2,8 @@ import './Login.css';
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 function Login({ setName, name }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -14,7 +16,7 @@ function Login({ setName, name }) {
         e.preventDefault();
 
         try {
-            const response = await fetch("http://localhost:5001/login", {
+            const response = await fetch(`${API_URL}/login`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -59,7 +61,7 @@ function Login({ setName, name }) {
                 <button type="submit">Login</button>
             </form>
             </div>
-            <a href="http://localhost:5001/auth/google">
+            <a href={`${API_URL}/auth/google`}>
               <button>Login with Google</button>
             </a>
         </div>
