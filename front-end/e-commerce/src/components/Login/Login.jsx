@@ -61,7 +61,7 @@ function Login({ setName, name }) {
                 <button type="submit">Login</button>
             </form>
             </div>
-            <a href={`${API_URL}/auth/google?ssl=true`}>
+            <a href={`${API_URL}/auth/google`}>
               <button>Login with Google</button>
             </a>
         </div>
