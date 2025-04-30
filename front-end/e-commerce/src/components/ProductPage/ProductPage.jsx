@@ -21,7 +21,7 @@ function ProductPage({ cartItems, setCartItems }) {
         .then((data) => {
           console.log("Fetched products:", data)
           setProducts(data)})
-        .catch((err) => console.error("Failed to load products", err));
+        .catch((err) => console.error(`${apiUrl} is called`, err));
     }, [category])
 
 
