@@ -244,14 +244,21 @@ app.get('/products', async (req, res) => {
 
     const { category } = req.query;
 
+    console.log("🔥 /products route hit");
+    console.log("📦 Category param:", category);
+
     try {
 
         let result;
         if (category) {
+            console.log("🧠 Running filtered query...");
             result = await query('SELECT * FROM products WHERE category = $1', [category])
         } else {
+            console.log("🧠 Running unfiltered query...");
             result = await query('SELECT * FROM products');
         }
+
+        console.log("✅ Query successful. Products:", result.rows.length);
         res.status(200).json(result.rows)
 
     } catch (err) {
