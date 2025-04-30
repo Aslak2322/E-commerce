@@ -242,7 +242,7 @@ app.post('/products', async (req, res) => {
 
 app.get('/products', async (req, res) => {
 
-    const { category } = req.query
+    const { category } = req.query;
 
     try {
 
@@ -255,7 +255,7 @@ app.get('/products', async (req, res) => {
         res.status(200).json(result.rows)
 
     } catch (err) {
-        console.error("Error fetching products:", err);
+        console.error("❌ Error fetching products:", err.stack || err.message || err);
         res.status(500).json({ error: 'Failed to get products'});
     }
 });
