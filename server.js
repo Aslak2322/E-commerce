@@ -14,6 +14,7 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 5001;
 const JWT_SECRET = process.env.JWT_SECRET || secretKey; 
+const apiUrl = process.env.REACT_APP_API_URL;
 
 
 app.use(express.json());
@@ -73,7 +74,7 @@ app.get('/auth/google/callback',
       );
     console.log(token);
 
-    res.redirect(`http://localhost:3000?token=${token}`); // or send token
+    res.redirect(`${apiUrl}?token=${token}`); // or send token
 });
 
 function authenticateToken(req, res, next) {
